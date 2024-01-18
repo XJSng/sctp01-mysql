@@ -43,3 +43,61 @@ show tables;
 
 ## to examine a table
 describe parents;
+
+### creating the student table next
+2 ways of doing foreign key
+1. Create the table first, then add the foreign KEY
+2. Create the table and the foreign key in one DDL statement
+
+create table students (
+id mediumint unsigned auto_increment primary key,
+name varchar(300) not null,
+swimming_grade varchar(20) not null,
+dob datetime not null,
+## MAKE SURE THE DATA TYPE OF THE FK MATCHES THE CORRESPONDING COLUMN IN THE OTHER TABLE
+parent_id int unsigned not null
+) engine = innodb;
+- engine must be innodb;
+
+## The step to Create the foreign key between two tables 
+-- Add constraint: Name a FK
+alter table students add constraint fk_students_parents
+foreign key (parent_id) references parents(id);
+- `fk_students_parents` is the name of the relationship
+
+### Inserting data (DML)
+insert into parents (name, email, phone) values ("Tan Ah Kow", "tanahkow@gemail.com", "12341234");
+
+### Get all rows from table (DQL)
+select `*` from `parents`;
+
+### Inserting multiple rows
+insert into parents (name, email, phone) values ("Tan Ah Mew", "tanahmew@gemail.com", "90438392"), ("Charlie Brown", "charliebrown@gemail.com", "09876543");
+
+-- insert student
+insert into students (name, swimming_grade, dob, parent_id) values ("Tan Ah Bao", "Bronze", "2020-05-10", 1);
+
+-- delete error because one student is referencing a parent with _id 1
+delete from parents where id = 1
+
+### Create sessions table
+create table sessions (
+    id int unsigned auto_increment primary key,
+    amount int unsigned not null, 
+    type varchar(20) default "cash"
+) engine = innodb;
+
+## Adding in a foreign key after creating the table
+alter table sessions add column student_id mediumint unsigned not null;
+alter table sessions add constraint fk_sessions_students foreign key (student_id) references students(id)
+
+## How to delete a column
+drop table <name of table>
+alter table students drop column student_id
+
+## Update an existing row
+update parents set name="John Snow" where id = 2;
+
+## Update multiple rows
+update parents set email="johnsnow@gemail.com", phone="91791290" where id = 2;
+View via this code `select * from parents`
