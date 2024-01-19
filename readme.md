@@ -101,3 +101,16 @@ update parents set name="John Snow" where id = 2;
 ## Update multiple rows
 update parents set email="johnsnow@gemail.com", phone="91791290" where id = 2;
 View via this code `select * from parents`
+
+## Delete a dow
+delete from parents where id=3;
+
+## Adding back charlie brown will result in an id of 4
+insert into parents (name, email, phone) values ("Charlie Brown", "charliebrown@gemail.com", "09876543");
+
+### Creating table, the foreign key plus reference relationship
+create table sessions (
+    id int unsigned auto_increment primary key,
+    description varchar(255) not null,
+    
+)
