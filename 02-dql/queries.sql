@@ -132,9 +132,54 @@ GROUP BY officeCode -- ORDER 3
 -- How to go about solving SQL problems
 -- QUESTION: Show the average credit limit of each country
 -- 1. which table(s) will give us the info we want (if > 1 table, need to JOIN)
--- 2  what do we want to group by?
+-- 2  what do we want to GROUP BY?
 -- 3. SELECT ???? FROM <table name> GROUP BY <criteria to group by>
 -- 4. What do I want from each group: MIN, MAX, AVG, SUM, COUNT
--- 5. Whatever you group by, you also must select (vice visera) excpet the aggregation
+-- 5. Whatever you group by, you also must select (vice visera) except the aggregation
 SELECT AVG(creditLimit), country FROM customers
 GROUP BY country
+
+-- We are only interested in countries where credit limit is more than 10,000
+-- Using the WHERE maethod will filter the creditLimit before the countries are grouped
+SELECT AVG(creditLimit), country FROM customers WHERE creditLimit > 10000 GROUP BY country;
+
+-- We can also use HAVING.
+-- HAVING (OFTEN used with GROUP BY) allows us to filter after the groups have been made
+SELECT AVG(creditLimit), country FROM customers GROUP BY country HAVING AVG(creditLimit) > 10000; --countries with less than 10000 creditLimit will be omitted 
+
+-- Again WHERE will happen before group by (the following will exclude countries with credit limit 0 before the groupings)
+SELECT AVG(creditLimit), country FROM customers WHERE creditLimit !=0 GROUP BY country HAVING AVG(creditLimit) > 10000;
+
+-- Find the total sales made by each salesperson in the year 2003
+SELECT SUM(amount), firstName, lastName, employeeNumber FROM customers JOIN payments
+ON customers.customerNumber = payments.customerNumber
+JOIN employees
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+GROUP BY employeeNumber;
+
+-- What if only top 3?
+SELECT SUM(amount), firstName, lastName, employeeNumber FROM customers JOIN payments
+ON customers.customerNumber = payments.customerNumber
+JOIN employees
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+GROUP BY employeeNumber
+ORDER BY SUM(amount) DESC
+LIMIT 3;
+
+-- What if we want to find only employees who earned more than 600k and are not from USA are considered?
+SELECT SUM(amount), country, firstName, lastName, employeeNumber FROM customers 
+JOIN payments
+ON customers.customerNumber = payments.customerNumber
+JOIN employees
+ON employees.employeeNumber = customers.salesRepEmployeeNumber
+WHERE customers.country != "USA"
+GROUP BY employeeNumber, country, firstName, lastName
+HAVING sum(amount) > 600000
+ORDER BY SUM(amount) DESC
+LIMIT 3;
+
+-- Show all customers with credit limit is above the average credit limit
+-- THIS LINE OF CODE WILL NOT WORK cause you can't have 2 queries in one
+SELECT * from customers where creditLimit > AVG(creditLimit);
+-- BUT THIS LINE WILL WORK
+SELECT * FROM customers WHERE creditLimit >(SELECT avg(creditLimit) FROM customers)
